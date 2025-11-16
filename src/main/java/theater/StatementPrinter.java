@@ -8,8 +8,8 @@ import java.util.Map;
  * This class generates a statement for a given invoice of performances.
  */
 public class StatementPrinter {
-    private Invoice invoice;
     private static Map<String, Play> plays;
+    private Invoice invoice;
 
     public StatementPrinter(Invoice invoice, Map<String, Play> plays) {
         this.invoice = invoice;
@@ -35,7 +35,7 @@ public class StatementPrinter {
         }
 
         result.append(String.format("Amount owed is %s%n", usd(getTotalAmount())));
-        result.append(String.format("You earned %s credits%n", getTotalVolumeCredits()));
+        result.append(String.format("You earned %s credits%n", getVolumeCredits()));
         return result.toString();
     }
 
@@ -47,19 +47,15 @@ public class StatementPrinter {
         return result;
     }
 
-    private int getTotalVolumeCredits() {
+    private int getVolumeCredits() {
         int result = 0;
         for (Performance performance : getInvoice().getPerformances()) {
-            result += getTotalVolumeCredits(performance);
+            result += getVolumeCredits(performance);
         }
         return result;
     }
 
-    private static String usd(int totalAmount) {
-        return NumberFormat.getCurrencyInstance(Locale.US).format(totalAmount / Constants.PERCENT_FACTOR);
-    }
-
-    private static int getTotalVolumeCredits(Performance performance) {
+    private static int getVolumeCredits(Performance performance) {
         int result = 0;
         result += Math.max(performance.getAudience() - Constants.BASE_VOLUME_CREDIT_THRESHOLD, 0);
         // add extra credit for every five comedy attendees
@@ -67,6 +63,10 @@ public class StatementPrinter {
             result += performance.getAudience() / Constants.COMEDY_EXTRA_VOLUME_FACTOR;
         }
         return result;
+    }
+
+    private static String usd(int totalAmount) {
+        return NumberFormat.getCurrencyInstance(Locale.US).format(totalAmount / Constants.PERCENT_FACTOR);
     }
 
     private static Play getPlay(Performance performance) {
